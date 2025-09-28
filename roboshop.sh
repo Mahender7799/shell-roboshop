@@ -2,8 +2,8 @@
 
 AMI_ID="ami-09c813fb71547fc4f"
 SG_ID="sg-08bd67a1891eddf3d" # replace with your SG ID
-#ZONE_ID="Z0948150OFPSYTNVYZOY" # replace with your ID
-#DOMAIN_NAME="daws86s.fun"
+ZONE_ID="Z02480542REU80RRGG46D" # replace with your ID
+DOMAIN_NAME="mahender.fun"
 
 for instance in $@ # mongodb redis mysql
 do
@@ -18,4 +18,23 @@ do
         RECORD_NAME="$DOMAIN_NAME" # daws86s.fun
     fi
      echo "$instance: $IP"
+
+        aws route53 change-resource-record-sets \
+    --hosted-zone-id $ZONE_ID \
+    --change-batch '
+    {
+        "Comment": "Updating record set"
+        ,"Changes": [{
+        "Action"              : "UPSERT"
+        ,"ResourceRecordSet"  : {
+            "Name"              : "'$RECORD_NAME'"
+            ,"Type"             : "A"
+            ,"TTL"              : 1
+            ,"ResourceRecords"  : [{
+                "Value"         : "'$IP'"
+            }]
+        }
+        }]
+    }
+    '    
 done    
